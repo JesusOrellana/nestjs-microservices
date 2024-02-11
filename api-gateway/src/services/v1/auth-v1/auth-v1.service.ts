@@ -17,8 +17,8 @@ export class AuthV1Service {
         });
     }
 
-    async validateUser(data: any): Promise<any> {
-        return this.client.send({ role: 'auth', cmd: 'validate' }, data)
+    async login(data: any): Promise<any> {
+        return this.client.send({ role: 'auth', cmd: 'login' }, data)
     }
 
 
