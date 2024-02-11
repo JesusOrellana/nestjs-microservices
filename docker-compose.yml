@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./api-gateway:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:dev
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+    networks:
+      - nest-api-network
+
+  ms-auth:
+    build:
+      context: ./ms-auth
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./ms-auth:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:dev
+    ports:
+      - "8877:8877"
+    environment:
+      NODE_ENV: development
+    networks:
+      - nest-api-network
+    depends_on:
+      - db-auth  # ms-auth depende de que mysql esté iniciado
+
+  db-auth:
+    image: mysql:5.7  # Usa una versión estable de MySQL
+    volumes:
+      - db-auth-data:/var/lib/mysql  # Volumen para la persistencia de datos
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword  # Usa una contraseña segura
+      MYSQL_DATABASE: db-auth  # Nombre de la base de datos cambiado a db-auth
+      MYSQL_USER: user  # Usuario de la base de datos
+      MYSQL_PASSWORD: 1234  # Contraseña del usuario (elige una segura)
+    ports:
+      - "3306:3306"
+    networks:
+      - nest-api-network
+
+networks:
+  nest-api-network:
+    driver: bridge
+
+volumes:
+  db-auth-data:  # Define el volumen para persistir los datos de MySQL
